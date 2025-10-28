@@ -36,8 +36,7 @@ def generate_poster():
         alpha = random.uniform(0.25, 0.6)
         plt.fill(x, y, color=color, alpha=alpha, edgecolor=(0,0,0,0))
 
-    plt.text(0.05, 0.95, "Generative Poster_week3", fontsize=18, weight='bold', transform=plt.gca().transAxes)
-    plt.text(0.05, 0.91, "click 'generate new poster", fontsize=20, transform=plt.gca().transAxes)
+    plt.text(0.05, 0.95, "Generative Poster_week3_click 'generate new poster", fontsize=18, weight='bold', transform=plt.gca().transAxes)
 
 
     plt.xlim(0,1)
