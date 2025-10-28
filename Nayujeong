@@ -1,5 +1,5 @@
 git clone https://github.com/userName/RepoName.git
 cd RepoName
-touch index.html 혹은 에디터 등으로 프로젝트파일 생성
+touch index.html 
 git add . & $ git commit -m "commit message"
 git push origin main
