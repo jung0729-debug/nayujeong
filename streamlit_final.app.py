@@ -3,6 +3,7 @@ import random, math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import hsv_to_rgb
+import io
 
 # ---------- 팔레트 ----------
 def make_palette(k=6, mode="creative", base_h=0.6):
@@ -65,46 +66,37 @@ def blob(center=(0.5,0.5), r=0.3, points=300, wobble=0.25, irregularity=0.6, sha
     return x,y
 
 # ---------- 포스터 그리기 ----------
-def draw_poster(layers):
+def draw_poster(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette):
     fig, ax = plt.subplots(figsize=(6,8))
     ax.axis('off'); ax.set_facecolor((0.97,0.97,0.97))
-    for layer in layers:
-        # 위치 랜덤
+    for _ in range(n_layers):
         cx, cy = random.random(), random.random()
-        x,y=blob(center=(cx,cy),
-                 r=layer["size"],
-                 wobble=layer["wobble"],
-                 irregularity=layer["irregularity"],
-                 shape_type=layer["shape"])
-        color=random.choice(layer["palette"])
-        ax.fill(x,y,color=color,alpha=layer["alpha"],edgecolor=(0,0,0,0))
-    ax.text(0.05,0.95,"Interactive Poster (Random Layer Positions)", transform=ax.transAxes, fontsize=20,weight="bold")
+        r = random.uniform(size_range[0], size_range[1])
+        shape = random.choice(shape_types)
+        x,y = blob(center=(cx,cy), r=r, wobble=wobble, irregularity=irregularity, shape_type=shape)
+        color = random.choice(palette)
+        ax.fill(x,y,color=color,alpha=alpha,edgecolor=(0,0,0,0))
+    ax.text(0.05,0.95,"🎨 Interactive Random Poster", transform=ax.transAxes, fontsize=20,weight="bold")
     return fig
 
 # ---------- Streamlit UI ----------
-st.title("🎨 Randomized Layer Poster Generator")
+st.title("🎨 Random Poster Generator (One-Click Control)")
 
-n_layers = st.slider("Number of Layers", 1, 10, 5)
-color_modes=["pastel","vivid","mono","creative","cinematic","random"]
+# 전체 옵션
+n_layers = st.slider("Number of Layers", 1, 20, 8)
+size_range = st.slider("Blob Size Range", 0.05, 0.5, (0.1,0.3))
+wobble = st.slider("Wobble", 0.0, 1.0, 0.2)
+irregularity = st.slider("Irregularity", 0.0, 1.0, 0.5)
+alpha = st.slider("Opacity", 0.1, 1.0, 0.6)
+shape_types = st.multiselect("Shapes", ["blob","ellipse","polygon","star"], default=["blob","ellipse"])
+color_mode = st.selectbox("Color Mode", ["pastel","vivid","mono","creative","cinematic","random"])
+palette = make_palette(6, mode=color_mode)
 
-layers=[]
-for i in range(n_layers):
-    with st.expander(f"Layer {i+1} settings", expanded=(i<3)):
-        size=st.slider(f"Size",0.05,0.5,0.2,key=f"s{i}")
-        wobble=st.slider(f"Wobble",0.0,1.0,0.2,key=f"w{i}")
-        irregularity=st.slider(f"Irregularity",0.0,1.0,0.5,key=f"ir{i}")
-        alpha=st.slider(f"Opacity",0.1,1.0,0.6,key=f"a{i}")
-        shape=st.selectbox(f"Shape",["blob","ellipse","polygon","star"],key=f"sh{i}")
-        palette_mode=st.selectbox(f"Color Mode",color_modes,key=f"mode{i}")
-        palette=make_palette(6,mode=palette_mode)
-        layers.append({"size":size,"wobble":wobble,"irregularity":irregularity,
-                       "alpha":alpha,"shape":shape,"palette":palette})
-
-fig=draw_poster(layers)
+# 포스터 그리기
+fig = draw_poster(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette)
 st.pyplot(fig)
 
 # 다운로드
-import io
-buf=io.BytesIO()
+buf = io.BytesIO()
 fig.savefig(buf,format="png",dpi=300,bbox_inches="tight")
 st.download_button("Download Poster",buf,file_name="poster.png",mime="image/png")
