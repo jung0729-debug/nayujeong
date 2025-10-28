@@ -65,22 +65,33 @@ def blob(center=(0.5,0.5), r=0.3, points=300, wobble=0.25, irregularity=0.6, sha
         x,y=np.array(x_arr), np.array(y_arr)
     return x,y
 
-# ---------- 포스터 그리기 ----------
-def draw_poster(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette):
+# ---------- 포스터 그리기 (입체 느낌) ----------
+def draw_poster_3d(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette):
     fig, ax = plt.subplots(figsize=(6,8))
     ax.axis('off'); ax.set_facecolor((0.97,0.97,0.97))
-    for _ in range(n_layers):
+    
+    # z-depth 값 (깊이감)
+    z_values = np.linspace(0.5, 1.0, n_layers)
+    np.random.shuffle(z_values)
+    
+    for i in range(n_layers):
         cx, cy = random.random(), random.random()
-        r = random.uniform(size_range[0], size_range[1])
+        z = z_values[i]
+        r = random.uniform(size_range[0], size_range[1]) * z
         shape = random.choice(shape_types)
         x,y = blob(center=(cx,cy), r=r, wobble=wobble, irregularity=irregularity, shape_type=shape)
-        color = random.choice(palette)
-        ax.fill(x,y,color=color,alpha=alpha,edgecolor=(0,0,0,0))
-    ax.text(0.05,0.95,"🎨 Interactive Random Poster", transform=ax.transAxes, fontsize=20,weight="bold")
+        
+        # 입체 느낌: 중심 밝기 + z값 반영
+        base_color = np.array(random.choice(palette))
+        color = np.clip(base_color * (0.7 + 0.3*z),0,1)
+        layer_alpha = alpha * (0.5 + 0.5*z)
+        ax.fill(x,y,color=color,alpha=layer_alpha,edgecolor=(0,0,0,0))
+    
+    ax.text(0.05,0.95,"🎨 3D-ish Random Poster", transform=ax.transAxes, fontsize=20,weight="bold")
     return fig
 
 # ---------- Streamlit UI ----------
-st.title("🎨 Random Poster Generator (One-Click Control)")
+st.title("🎨 3D-ish Random Poster Generator")
 
 # 전체 옵션
 n_layers = st.slider("Number of Layers", 1, 20, 8)
@@ -93,7 +104,7 @@ color_mode = st.selectbox("Color Mode", ["pastel","vivid","mono","creative","cin
 palette = make_palette(6, mode=color_mode)
 
 # 포스터 그리기
-fig = draw_poster(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette)
+fig = draw_poster_3d(n_layers, size_range, wobble, irregularity, alpha, shape_types, palette)
 st.pyplot(fig)
 
 # 다운로드
