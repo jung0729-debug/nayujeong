@@ -1,5 +1,11 @@
-git clone https://github.com/userName/RepoName.git
-cd RepoName
-touch index.html 
-git add . & $ git commit -m "commit message"
+git clone https://github.com/jung0729-debug/nayujeong.git
+
+cd nayujeong
+
+touch index.html
+
+git add .
+git commit -m "add index.html"
+
 git push origin main
+
