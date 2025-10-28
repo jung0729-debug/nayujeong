@@ -84,7 +84,7 @@ def draw_poster_3d(n_layers, size_range, wobble, irregularity, alpha, shape_type
         # 입체 느낌: 중심 밝기 + z값 반영
         base_color = np.array(random.choice(palette))
         color = np.clip(base_color * (0.7 + 0.3*z),0,1)
-        layer_alpha = alpha * (0.5 + 0.5*z)
+        layer_alpha = alpha * (0.5 + 0.5*z) 
         ax.fill(x,y,color=color,alpha=layer_alpha,edgecolor=(0,0,0,0))
     
     ax.text(0.05,0.95,"🎨 3D-ish Random Poster", transform=ax.transAxes, fontsize=20,weight="bold")
