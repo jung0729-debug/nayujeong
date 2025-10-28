@@ -1,11 +1,11 @@
-git clone https://github.com/jung0729-debug/nayujeong.git
+git init
 
-cd nayujeong
-
-touch index.html
+git remote add origin https://github.com/jung0729-debug/nayujeong.git
 
 git add .
-git commit -m "add index.html"
 
-git push origin main
+git commit -m "first commit"
 
+git branch -M main
+
+git push -u origin main
