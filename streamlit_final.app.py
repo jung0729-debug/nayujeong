@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import hsv_to_rgb
 
-# ---------- 팔레트 생성 ----------
+# ---------- 팔레트 ----------
 def make_palette(k=6, mode="creative", base_h=0.6):
     cols = []
-    if mode == "pastel":
+    if mode=="pastel":
         for _ in range(k):
             h=random.random(); s=random.uniform(0.2,0.4); v=random.uniform(0.9,1.0)
             cols.append(tuple(hsv_to_rgb([h,s,v])))
@@ -31,13 +31,13 @@ def make_palette(k=6, mode="creative", base_h=0.6):
             if i%2==0: h=random.uniform(0.05,0.12); s=random.uniform(0.7,0.9); v=random.uniform(0.7,1.0)
             else: h=random.uniform(0.5,0.65); s=random.uniform(0.4,0.7); v=random.uniform(0.5,0.9)
             cols.append(tuple(hsv_to_rgb([h,s,v])))
-    else:  # random
+    else:
         for _ in range(k):
             h=random.random(); s=random.uniform(0.3,1.0); v=random.uniform(0.5,1.0)
             cols.append(tuple(hsv_to_rgb([h,s,v])))
     return cols
 
-# ---------- 블롭 생성 ----------
+# ---------- 블롭/모양 ----------
 def blob(center=(0.5,0.5), r=0.3, points=300, wobble=0.25, irregularity=0.6, shape_type="blob"):
     angles = np.linspace(0, 2*math.pi, points, endpoint=False)
     radii = r * (1 + wobble*(np.random.rand(points)-0.5))
@@ -69,27 +69,27 @@ def draw_poster(layers):
     fig, ax = plt.subplots(figsize=(6,8))
     ax.axis('off'); ax.set_facecolor((0.97,0.97,0.97))
     for layer in layers:
-        x,y=blob(center=(layer["x"],layer["y"]),
+        # 위치 랜덤
+        cx, cy = random.random(), random.random()
+        x,y=blob(center=(cx,cy),
                  r=layer["size"],
                  wobble=layer["wobble"],
                  irregularity=layer["irregularity"],
                  shape_type=layer["shape"])
-        color=random.choice(layer["palette"])  # 선택한 모드에서 랜덤 색
+        color=random.choice(layer["palette"])
         ax.fill(x,y,color=color,alpha=layer["alpha"],edgecolor=(0,0,0,0))
-    ax.text(0.05,0.95,"Interactive Cinematic Poster", transform=ax.transAxes, fontsize=20,weight="bold")
+    ax.text(0.05,0.95,"Interactive Poster (Random Layer Positions)", transform=ax.transAxes, fontsize=20,weight="bold")
     return fig
 
 # ---------- Streamlit UI ----------
-st.title("🎨final Poster Generator ")
+st.title("🎨 Randomized Layer Poster Generator")
 
-n_layers=st.slider("Number of Layers",1,10,5)
+n_layers = st.slider("Number of Layers", 1, 10, 5)
 color_modes=["pastel","vivid","mono","creative","cinematic","random"]
 
 layers=[]
 for i in range(n_layers):
-    with st.expander(f"Layer {i+1} settings", expanded=(i<2)):
-        x=st.slider(f"X (Layer {i+1})",0.0,1.0,0.5,key=f"x{i}")
-        y=st.slider(f"Y (Layer {i+1})",0.0,1.0,0.5,key=f"y{i}")
+    with st.expander(f"Layer {i+1} settings", expanded=(i<3)):
         size=st.slider(f"Size",0.05,0.5,0.2,key=f"s{i}")
         wobble=st.slider(f"Wobble",0.0,1.0,0.2,key=f"w{i}")
         irregularity=st.slider(f"Irregularity",0.0,1.0,0.5,key=f"ir{i}")
@@ -97,7 +97,7 @@ for i in range(n_layers):
         shape=st.selectbox(f"Shape",["blob","ellipse","polygon","star"],key=f"sh{i}")
         palette_mode=st.selectbox(f"Color Mode",color_modes,key=f"mode{i}")
         palette=make_palette(6,mode=palette_mode)
-        layers.append({"x":x,"y":y,"size":size,"wobble":wobble,"irregularity":irregularity,
+        layers.append({"size":size,"wobble":wobble,"irregularity":irregularity,
                        "alpha":alpha,"shape":shape,"palette":palette})
 
 fig=draw_poster(layers)
