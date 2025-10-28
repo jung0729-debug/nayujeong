@@ -38,6 +38,8 @@ def generate_poster():
 
     plt.text(0.05, 0.95, "Generative Poster", fontsize=18, weight='bold', transform=plt.gca().transAxes)
     plt.text(0.05, 0.91, "Week 2 • Arts & Advanced Big Data", fontsize=11, transform=plt.gca().transAxes)
+    plt.text(0.05, 0.91, "clik 'generate new poster", fontsize=20, transform=plt.gca().transAxes)
+
 
     plt.xlim(0,1)
     plt.ylim(0,1)
