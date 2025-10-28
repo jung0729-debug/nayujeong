@@ -1,0 +1,5 @@
+$ git clone https://github.com/userName/RepoName.git
+$ cd RepoName
+$ touch index.html 
+$ git add . & $ git commit -m "commit message"
+$ git push origin main
