@@ -1,70 +1,65 @@
+pip install streamlit folium streamlit-folium requests
+
 import streamlit as st
-import pandas as pd
 import requests
+import folium
+from streamlit_folium import st_folium
 
-st.set_page_config(page_title="Na Yujeong's Global Weather Dashboard", page_icon="🌎")
+# 🌏 페이지 기본 설정
+st.set_page_config(page_title="Global Weather Dashboard - YuJeong", layout="wide")
+st.title("☁️ Global Interactive Weather Dashboard 🌍")
+st.write("Click anywhere on the map to view live weather data for that location!")
 
-st.title("🌎 Na Yujeong's Global Weather Dashboard")
-st.caption("Explore real-time temperature data from anywhere in the world using the Open-Meteo API.")
+# 🗺️ 전세계 지도 표시
+m = folium.Map(location=[20, 0], zoom_start=2, tiles="CartoDB positron")
 
-# 🌍 나라별 주요 도시 좌표 데이터
-countries = {
-    "South Korea": {
-        "Seoul": [37.5665, 126.9780],
-        "Busan": [35.1796, 129.0756],
-        "Jeju": [33.4996, 126.5312],
-        "Incheon": [37.4563, 126.7052],
-    },
-    "Japan": {
-        "Tokyo": [35.6895, 139.6917],
-        "Osaka": [34.6937, 135.5023],
-        "Sapporo": [43.0618, 141.3545],
-        "Fukuoka": [33.5904, 130.4017],
-    },
-    "United States": {
-        "New York": [40.7128, -74.0060],
-        "Los Angeles": [34.0522, -118.2437],
-        "Chicago": [41.8781, -87.6298],
-        "Houston": [29.7604, -95.3698],
-    },
-    "France": {
-        "Paris": [48.8566, 2.3522],
-        "Lyon": [45.7640, 4.8357],
-        "Marseille": [43.2965, 5.3698],
-        "Nice": [43.7102, 7.2620],
-    },
-    "Australia": {
-        "Sydney": [-33.8688, 151.2093],
-        "Melbourne": [-37.8136, 144.9631],
-        "Brisbane": [-27.4698, 153.0251],
-        "Perth": [-31.9505, 115.8605],
-    }
-}
+# Streamlit에서 Folium 지도 출력
+st_data = st_folium(m, width=850, height=500)
 
-# 1️⃣ 나라 선택
-country = st.selectbox("🌍 Select a Country", list(countries.keys()))
+# 🌦️ OpenWeatherMap API 키 설정 (★ 본인 키로 교체)
+API_KEY = "YOUR_API_KEY"
 
-# 2️⃣ 도시 선택
-city = st.selectbox("🏙️ Select a City", list(countries[country].keys()))
-lat, lon = countries[country][city]
+# 📍 지도 클릭 감지
+if st_data and st_data["last_clicked"]:
+    lat = st_data["last_clicked"]["lat"]
+    lon = st_data["last_clicked"]["lng"]
 
-# 지도 표시
-st.map(pd.DataFrame([[lat, lon]], columns=["lat", "lon"]))
+    # 지도 위 클릭 좌표 표시
+    st.success(f"📍 Selected Coordinates: {lat:.4f}, {lon:.4f}")
 
-# 3️⃣ Open-Meteo API 요청
-url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m"
-data = requests.get(url).json()
+    # 지도에 마커 추가
+    folium.Marker(
+        location=[lat, lon],
+        popup=f"Selected: {lat:.2f}, {lon:.2f}",
+        icon=folium.Icon(color="blue", icon="cloud"),
+    ).add_to(m)
 
-temps = data["hourly"]["temperature_2m"]
-times = data["hourly"]["time"]
+    # 🗺️ Reverse Geocoding으로 지역명 확인
+    geo_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json"
+    geo_res = requests.get(geo_url).json()
+    location_name = geo_res.get("display_name", "Unknown location")
 
-df = pd.DataFrame({
-    "Time": times,
-    "Temperature (°C)": temps
-})
+    st.write(f"**Location:** {location_name}")
 
-# 4️⃣ 시각화
-st.subheader(f"🌡 Hourly Temperature in {city}, {country}")
-st.line_chart(df.set_index("Time"))
+    # ☁️ 날씨 API 요청
+    weather_url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+    response = requests.get(weather_url)
 
-st.success(f"✅ Successfully loaded weather data for {city}, {country}!")
+    if response.status_code == 200:
+        data = response.json()
+
+        # 🌡️ 날씨 데이터 표시
+        st.subheader(f"Weather near {location_name.split(',')[0]}")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("🌡️ Temperature", f"{data['main']['temp']} °C")
+        with col2:
+            st.metric("💧 Humidity", f"{data['main']['humidity']} %")
+        with col3:
+            st.metric("🌬️ Wind Speed", f"{data['wind']['speed']} m/s")
+
+        st.write("**Condition:**", data["weather"][0]["description"].title())
+    else:
+        st.error("Couldn't fetch weather data 😢")
+else:
+    st.info("🗺️ Click anywhere on the map to view weather information.")
