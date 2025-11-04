@@ -51,7 +51,7 @@ lon = st.sidebar.number_input("Longitude", value=126.9780, format="%.4f")
 if st.sidebar.button("Add Location"):
     new_point = pd.DataFrame([[lat, lon]], columns=["lat", "lon"])
     st.session_state.points = pd.concat([st.session_state.points, new_point], ignore_index=True)
-    st.experimental_rerun()
+    st.rerun()
 
 # 현재 선택된 위치 표시
 if not st.session_state.points.empty:
