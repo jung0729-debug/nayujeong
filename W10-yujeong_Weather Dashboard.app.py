@@ -1,134 +1,38 @@
 import streamlit as st
-import pydeck as pdk
-import pandas as pd
 import requests
+import pandas as pd
 
-# ---- 기본 설정 ----
-st.set_page_config(page_title="🌎 Creative Weather Dashboard by Nayujeong", layout="wide")
-st.title("🌍 Creative Global Weather Dashboard by Nayujeong")
+st.title("📡 간단 날씨 앱 (OpenWeatherMap API 사용)")
 
-# ---- OpenWeather API ----
-API_KEY = "YOUR_OPENWEATHER_API_KEY"  # 여기에 실제 API 키 넣기
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+# API key 입력 받기
+api_key = st.text_input("OpenWeatherMap API Key 입력", type="password")
 
-# ---- 지도 초기화 ----
-INITIAL_VIEW = pdk.ViewState(latitude=20, longitude=0, zoom=1.5)
-if "locations" not in st.session_state:
-    st.session_state.locations = []
+# 도시명 입력 받기
+city = st.text_input("조회할 도시 이름 (예: Seoul, London)")
 
-# ---- 애니메이션 함수 ----
-def weather_animation(condition):
-    if not condition:
-        return
-    if "snow" in condition.lower():
-        snow_html = """
-        <div class="snowflakes" aria-hidden="true">
-          <div class="snowflake">❄️</div>
-          <div class="snowflake">❅</div>
-          <div class="snowflake">❆</div>
-        </div>
-        <style>
-        .snowflake {
-          position: fixed;
-          top: -10px;
-          color: white;
-          font-size: 1.5em;
-          user-select: none;
-          animation: fall 10s linear infinite;
-        }
-        @keyframes fall {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(100vh); }
-        }
-        </style>
-        """
-        st.markdown(snow_html, unsafe_allow_html=True)
-    elif "rain" in condition.lower():
-        rain_html = """
-        <div class="rain">
-          <div class="drop"></div><div class="drop"></div><div class="drop"></div>
-        </div>
-        <style>
-        .drop {
-          position: fixed;
-          width: 2px;
-          height: 20px;
-          background: rgba(173,216,230,0.6);
-          top: -20px;
-          animation: rain 1s linear infinite;
-        }
-        @keyframes rain {
-          to { transform: translateY(100vh); }
-        }
-        </style>
-        """
-        st.markdown(rain_html, unsafe_allow_html=True)
-
-# ---- 위치 추가 ----
-st.sidebar.header("📍 Select a Location")
-lat = st.sidebar.number_input("Latitude", value=37.5665, format="%.4f")
-lon = st.sidebar.number_input("Longitude", value=126.9780, format="%.4f")
-
-if st.sidebar.button("Add Location"):
-    url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-    try:
+if st.button("날씨 조회하기"):
+    if not api_key:
+        st.error("API Key를 입력하세요!")
+    elif not city:
+        st.error("도시 이름을 입력하세요!")
+    else:
+        # OpenWeatherMap 현재날씨 API 호출
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=kr"
         response = requests.get(url)
-        data = response.json()
-        
-        # 실패 체크
-        if response.status_code != 200 or "main" not in data:
-            st.error(f"⚠️ Failed to fetch weather data: {data.get('message', 'Unknown error')}")
+
+        if response.status_code == 200:
+            data = response.json()
+            st.subheader(f"{data['name']} ({data['sys']['country']}) 현재 날씨")
+            weather = data['weather'][0]
+            main = data['main']
+            wind = data['wind']
+
+            # 날씨 정보 출력
+            st.write(f"🌡️ 온도: {main['temp']}°C")
+            st.write(f"❄️ 체감 온도: {main['feels_like']}°C")
+            st.write(f"☁️ 날씨: {weather['main']} - {weather['description']}")
+            st.write(f"💧 습도: {main['humidity']}%")
+            st.write(f"🍃 풍속: {wind['speed']} m/s")
         else:
-            name = data.get("name", "Unknown")
-            temp = data["main"].get("temp", "N/A")
-            hum = data["main"].get("humidity", "N/A")
-            cond = data.get("weather", [{}])[0].get("description", "N/A")
-            
-            st.session_state.locations.append({
-                "lat": lat,
-                "lon": lon,
-                "city": name,
-                "temp": temp,
-                "hum": hum,
-                "cond": cond
-            })
-            st.rerun()
-    except Exception as e:
-        st.error(f"⚠️ Exception occurred: {e}")
+            st.error("날씨 정보를 가져오는 데 실패했습니다. 도시명과 API 키를 확인하세요.")
 
-# ---- 지도 표시 ----
-if st.session_state.locations:
-    df = pd.DataFrame(st.session_state.locations)
-    r = pdk.Deck(
-        map_style="mapbox://styles/mapbox/light-v9",
-        initial_view_state=INITIAL_VIEW,
-        layers=[
-            pdk.Layer(
-                "ScatterplotLayer",
-                data=df,
-                get_position=["lon", "lat"],  # 리스트 형식
-                get_color=[255, 0, 0, 200],
-                get_radius=40000,
-            )
-        ],
-    )
-    st.pydeck_chart(r)
-else:
-    st.info("Add a location to see the map.")
-
-# ---- 날씨 카드 표시 ----
-st.subheader("🌤️ Selected Locations")
-for loc in st.session_state.locations:
-    weather_animation(loc["cond"])
-    with st.container():
-        st.markdown(
-            f"""
-            <div style="padding:15px; border-radius:12px; background:#f5f5f5; margin-bottom:10px; box-shadow:2px 2px 8px rgba(0,0,0,0.1)">
-                <h3>{loc['city']}</h3>
-                <p><b>🌡️ Temperature:</b> {loc['temp']}°C</p>
-                <p><b>💧 Humidity:</b> {loc['hum']}%</p>
-                <p><b>☁️ Condition:</b> {loc['cond'].title()}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
