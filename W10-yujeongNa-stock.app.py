@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 
-# --- 사이드바: 분석 조건 ---
 st.sidebar.header("분석 설정")
 num = st.sidebar.slider("추천받을 종목 개수", 1, 10, 5)
 market_cap = st.sidebar.number_input("최소 거래 규모 (억원)", 0, 100000, 100)
@@ -27,7 +26,7 @@ df = pd.DataFrame(stock_data)
 
 if analyze:
     df = df[df['거래대금'] >= market_cap].sort_values('점수', ascending=False).head(num)
-    st.subheader("추천 종목 TOP " + str(len(df)))
+    st.subheader(f"추천 종목 TOP {len(df)}")
     cols = st.columns(len(df))
 
     for idx, row in df.reset_index().iterrows():
@@ -40,37 +39,30 @@ if analyze:
             st.write("✅ 매수 신호:")
             for signal in row['신호']:
                 st.write("- " + signal)
-            # 뉴스 버튼, 클릭시 세션에 종목명 저장
             if st.button(f"{row['종목명']} 뉴스 보기", key=f"news_{idx}"):
                 st.session_state.news_stock = row['종목명']
-
 else:
     st.info("좌측에서 조건을 입력하고 '분석 시작하기'를 눌러주세요.")
 
-# 기본 뉴스 대상 지정
 news_stock = st.session_state.get('news_stock', df.iloc[0]['종목명'] if not df.empty else '')
 
 st.markdown("---")
 st.subheader(f"📢 {news_stock} 관련 최신 뉴스")
 
-def get_news(query):
-    # 네이버 뉴스 API 예시 (발급된 API키로 교체 필요)
-    url = f"https://openapi.naver.com/v1/search/news.json?query={query}&display=5&sort=date"
-    headers = {
-        "X-Naver-Client-Id": "YOUR_NAVER_CLIENT_ID",
-        "X-Naver-Client-Secret": "YOUR_NAVER_CLIENT_SECRET"
-    }
+def get_news_newsapi(query):
+    api_key = '6add4df125c64fdcb1ba47352dfcab55'  # 전달받은 키 활용
+    url = f'https://newsapi.org/v2/everything?q={query}&pageSize=5&sortBy=publishedAt&apiKey={api_key}'
     try:
-        res = requests.get(url, headers=headers)
-        items = res.json().get('items', [])
-        return [(item['title'], item['link']) for item in items]
-    except:
+        response = requests.get(url)
+        articles = response.json().get('articles', [])
+        return [(article['title'], article['url']) for article in articles]
+    except Exception as e:
+        st.error(f'뉴스 API 호출 오류: {e}')
         return []
 
-if news_stock:
-    news_list = get_news(news_stock)
-    if news_list:
-        for title, link in news_list:
-            st.markdown(f"- [{title}]({link})")
-    else:
-        st.write("뉴스 결과가 없습니다. API 키 및 연결 상태를 확인해 주세요.")
+news_list = get_news_newsapi(news_stock)
+if news_list:
+    for title, link in news_list:
+        st.markdown(f"- [{title}]({link})")
+else:
+    st.write("뉴스 결과가 없습니다. API 키 및 연결 상태를 확인해 주세요.")
