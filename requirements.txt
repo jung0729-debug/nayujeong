@@ -5,3 +5,8 @@ numpy
 streamlit
 pandas
 requests
+
+streamlit
+folium
+streamlit-folium
+requests
