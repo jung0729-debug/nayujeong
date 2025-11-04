@@ -1,4 +1,3 @@
-pip install streamlit folium streamlit-folium requests
 
 import streamlit as st
 import requests
