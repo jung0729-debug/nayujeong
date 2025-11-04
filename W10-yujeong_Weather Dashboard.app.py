@@ -9,7 +9,7 @@ api_key = st.text_input("OpenWeatherMap API Key 입력", type="password")
 
 # 도시명 입력 받기
 city = st.text_input("조회할 도시 이름 (예: Seoul, London)")
-
+ 
 if st.button("날씨 조회하기"):
     if not api_key:
         st.error("API Key를 입력하세요!")
