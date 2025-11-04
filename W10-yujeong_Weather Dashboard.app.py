@@ -98,20 +98,23 @@ if st.sidebar.button("Add Location"):
 
 # ---- 지도 표시 ----
 if st.session_state.locations:
+    df = pd.DataFrame(st.session_state.locations)
     r = pdk.Deck(
-        map_style=None,
+        map_style="mapbox://styles/mapbox/light-v9",
         initial_view_state=INITIAL_VIEW,
         layers=[
             pdk.Layer(
                 "ScatterplotLayer",
-                data=pd.DataFrame(st.session_state.locations),
-                get_position='[lon, lat]',
-                get_color='[255, 0, 0, 200]',
+                data=df,
+                get_position=["lon", "lat"],  # 리스트 형식
+                get_color=[255, 0, 0, 200],
                 get_radius=40000,
             )
         ],
     )
     st.pydeck_chart(r)
+else:
+    st.info("Add a location to see the map.")
 
 # ---- 날씨 카드 표시 ----
 st.subheader("🌤️ Selected Locations")
