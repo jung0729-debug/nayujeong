@@ -1,114 +1,70 @@
 import streamlit as st
-import pydeck as pdk
-import pandas as pd
-import requests
+import folium
+from streamlit_folium import st_folium
 
-# ---------------- 기본 설정 ----------------
-st.set_page_config(page_title="🌎 Creative Weather Dashboard by Nayujeong", layout="wide")
-st.title("🌍 Creative Global Weather Dashboard by Nayujeong")
+st.set_page_config(page_title="Global Weather Map", layout="wide")
 
-API_KEY = "YOUR_OPENWEATHER_API_KEY"  # 👉 OpenWeather 키 입력 필요
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+st.title("🌎 Global Interactive Weather Map")
+st.markdown("Click anywhere on the map or choose a major city from the sidebar!")
 
-# ---------------- 주요 도시 목록 ----------------
+# ---- 주요 도시 데이터 ----
 major_cities = {
     "Seoul": [37.5665, 126.9780],
     "Tokyo": [35.6895, 139.6917],
+    "Beijing": [39.9042, 116.4074],
     "New York": [40.7128, -74.0060],
+    "Los Angeles": [34.0522, -118.2437],
     "Paris": [48.8566, 2.3522],
     "London": [51.5074, -0.1278],
-    "Sydney": [-33.8688, 151.2093],
-    "Toronto": [43.6532, -79.3832],
     "Berlin": [52.5200, 13.4050],
-    "Rome": [41.9028, 12.4964],
-    "Mexico City": [19.4326, -99.1332],
+    "Moscow": [55.7558, 37.6176],
+    "Sydney": [-33.8688, 151.2093],
+    "Cairo": [30.0444, 31.2357],
+    "Mexico City": [19.4326, -99.1332]
 }
 
-# ---------------- 세션 초기화 ----------------
+# ---- 세션 상태 초기화 ----
 if "locations" not in st.session_state:
     st.session_state.locations = []
 
-# ---------------- 애니메이션 함수 ----------------
-def weather_animation(condition):
-    if "snow" in condition.lower():
-        snow_html = """
-        <div class="snowflakes" aria-hidden="true">
-          <div class="snowflake">❄️</div><div class="snowflake">❅</div><div class="snowflake">❆</div>
-        </div>
-        <style>
-        .snowflake {
-          position: fixed; top: -10px; color: white; font-size: 1.5em;
-          user-select: none; animation: fall 10s linear infinite;
-        }
-        @keyframes fall { 0% { transform: translateY(0); } 100% { transform: translateY(100vh); } }
-        </style>
-        """
-        st.markdown(snow_html, unsafe_allow_html=True)
-    elif "rain" in condition.lower():
-        rain_html = """
-        <div class="rain"><div class="drop"></div><div class="drop"></div><div class="drop"></div></div>
-        <style>
-        .drop {
-          position: fixed; width: 2px; height: 20px; background: rgba(173,216,230,0.6);
-          top: -20px; animation: rain 1s linear infinite;
-        }
-        @keyframes rain { to { transform: translateY(100vh); } }
-        </style>
-        """
-        st.markdown(rain_html, unsafe_allow_html=True)
-
-# ---------------- 날씨 요청 함수 ----------------
-def fetch_weather(lat, lon):
-    url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-    data = requests.get(url).json()
-    city = data.get("name", "Unknown")
-    temp = data["main"]["temp"]
-    hum = data["main"]["humidity"]
-    cond = data["weather"][0]["description"]
-    return {"city": city, "temp": temp, "hum": hum, "cond": cond}
-
-# ---------------- 사이드바: 주요 도시 ----------------
-st.sidebar.header("🏙️ Major Cities")
-selected_city = st.sidebar.radio("Choose a city:", list(major_cities.keys()))
-
-if st.sidebar.button("Show Weather"):
+# ---- 사이드바 ----
+st.sidebar.header("📍 Major Cities")
+selected_city = st.sidebar.selectbox("Choose a city", ["-- Select --"] + list(major_cities.keys()))
+if selected_city != "-- Select --":
     lat, lon = major_cities[selected_city]
-    info = fetch_weather(lat, lon)
-    info["lat"], info["lon"] = lat, lon
-    st.session_state.locations.append(info)
-    st.rerun()
+    st.session_state.locations.append({"name": selected_city, "lat": lat, "lon": lon})
+    st.sidebar.success(f"Added {selected_city} to the map!")
 
-# ---------------- 지도 표시 ----------------
-INITIAL_VIEW = pdk.ViewState(latitude=20, longitude=0, zoom=1.5)
-r = pdk.Deck(
-    map_style=None,
-    initial_view_state=INITIAL_VIEW,
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=pd.DataFrame(st.session_state.locations),
-            get_position='[lon, lat]',
-            get_color='[255, 0, 0, 200]',
-            get_radius=40000,
-        )
-    ],
-)
-st.pydeck_chart(r)
+# ---- 지도 기본 설정 ----
+m = folium.Map(location=[20, 0], zoom_start=2)
 
-# ---------------- 날씨 카드 출력 ----------------
-st.subheader("🌤️ Selected Locations")
+# ---- 클릭 이벤트 ----
+st.markdown("### 🗺️ Click on the map to add a new location.")
+map_data = st_folium(m, width=1200, height=600)
+
+if map_data and map_data["last_clicked"]:
+    click = map_data["last_clicked"]
+    st.session_state.locations.append({
+        "name": f"Custom ({click['lat']:.2f}, {click['lng']:.2f})",
+        "lat": click["lat"],
+        "lon": click["lng"]
+    })
+    st.experimental_rerun()
+
+# ---- 저장된 마커 표시 ----
 for loc in st.session_state.locations:
-    weather_animation(loc["cond"])
-    with st.container():
-        st.markdown(
-            f"""
-            <div style="padding:15px; border-radius:12px; background:#f5f5f5; margin-bottom:10px;
-                        box-shadow:2px 2px 8px rgba(0,0,0,0.1)">
-                <h3>{loc['city']}</h3>
-                <p><b>🌡️ Temperature:</b> {loc['temp']}°C</p>
-                <p><b>💧 Humidity:</b> {loc['hum']}%</p>
-                <p><b>☁️ Condition:</b> {loc['cond'].title()}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    folium.Marker(
+        [loc["lat"], loc["lon"]],
+        popup=loc["name"],
+        tooltip=loc["name"],
+        icon=folium.Icon(color="blue", icon="cloud")
+    ).add_to(m)
+
+# ---- 업데이트된 지도 렌더 ----
+st_data = st_folium(m, width=1200, height=600)
+
+# ---- 현재 저장된 도시 목록 표시 ----
+if st.session_state.locations:
+    st.sidebar.markdown("### 📍 Added Locations")
+    for loc in st.session_state.locations:
+        st.sidebar.write(f"- {loc['name']} ({loc['lat']:.2f}, {loc['lon']:.2f})")
