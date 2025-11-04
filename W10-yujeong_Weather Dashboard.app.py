@@ -8,7 +8,7 @@ st.set_page_config(page_title="🌎 Global Weather Dashboard by Nayujeong", layo
 st.title("🌍 Global Weather Dashboard by Nayujeong")
 st.markdown("Click anywhere on the world map to explore weather by location!")
 
-# 초기 지도 설정 (전세계)
+# 초기 지도 설정 (전세계 뷰)
 INITIAL_VIEW_STATE = pdk.ViewState(
     latitude=20,
     longitude=0,
@@ -16,16 +16,13 @@ INITIAL_VIEW_STATE = pdk.ViewState(
     pitch=0,
 )
 
-# 빈 데이터프레임 (클릭 포인트 저장용)
+# 빈 데이터프레임 (좌표 저장용)
 if "points" not in st.session_state:
     st.session_state.points = pd.DataFrame(columns=["lat", "lon"])
 
-# 지도 클릭 이벤트 처리
-clicked_point = st.session_state.get("clicked_point")
-
-# pydeck 지도 구성
+# pydeck 지도 (Mapbox 스타일 제거 → 검은 화면 방지)
 r = pdk.Deck(
-    map_style="mapbox://styles/mapbox/light-v9",
+    map_style=None,  # ✅ 스타일 제거
     initial_view_state=INITIAL_VIEW_STATE,
     tooltip={"text": "Click to select a location"},
     layers=[
@@ -42,11 +39,12 @@ r = pdk.Deck(
 # 지도 표시
 st.pydeck_chart(r)
 
-st.write("🗺️ Clicked Locations:")
+# 클릭 좌표 목록
+st.write("🗺️ Selected Locations:")
 st.dataframe(st.session_state.points)
 
-# 사용자가 지도 좌표 입력 (클릭 대신 수동 입력)
-st.sidebar.header("📍 Select a Location")
+# 좌표 수동 입력 (대신 클릭 대신)
+st.sidebar.header("📍 Select a Location Manually")
 lat = st.sidebar.number_input("Latitude", value=37.5665, format="%.4f")  # 기본 서울
 lon = st.sidebar.number_input("Longitude", value=126.9780, format="%.4f")
 
