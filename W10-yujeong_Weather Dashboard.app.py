@@ -2,14 +2,13 @@ import streamlit as st
 import pydeck as pdk
 import pandas as pd
 import requests
-import random
 
 # ---- 기본 설정 ----
 st.set_page_config(page_title="🌎 Creative Weather Dashboard by Nayujeong", layout="wide")
 st.title("🌍 Creative Global Weather Dashboard by Nayujeong")
 
 # ---- OpenWeather API ----
-API_KEY = "YOUR_OPENWEATHER_API_KEY"  # 👉 여기에 API 키 넣기
+API_KEY = "YOUR_OPENWEATHER_API_KEY"  # 여기에 실제 API 키 넣기
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 # ---- 지도 초기화 ----
@@ -19,6 +18,8 @@ if "locations" not in st.session_state:
 
 # ---- 애니메이션 함수 ----
 def weather_animation(condition):
+    if not condition:
+        return
     if "snow" in condition.lower():
         snow_html = """
         <div class="snowflakes" aria-hidden="true">
@@ -69,41 +70,53 @@ lat = st.sidebar.number_input("Latitude", value=37.5665, format="%.4f")
 lon = st.sidebar.number_input("Longitude", value=126.9780, format="%.4f")
 
 if st.sidebar.button("Add Location"):
+    url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
     try:
-        url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-        data = requests.get(url).json()
-        name = data.get("name", "Unknown")
-        temp = data["main"]["temp"]
-        hum = data["main"]["humidity"]
-        cond = data["weather"][0]["description"]
-        st.session_state.locations.append({
-            "lat": lat, "lon": lon, "city": name, 
-            "temp": temp, "hum": hum, "cond": cond
-        })
-        st.rerun()
-    except:
-        st.error("⚠️ Failed to fetch weather data. Check your API key or network.")
+        response = requests.get(url)
+        data = response.json()
+        
+        # 실패 체크
+        if response.status_code != 200 or "main" not in data:
+            st.error(f"⚠️ Failed to fetch weather data: {data.get('message', 'Unknown error')}")
+        else:
+            name = data.get("name", "Unknown")
+            temp = data["main"].get("temp", "N/A")
+            hum = data["main"].get("humidity", "N/A")
+            cond = data.get("weather", [{}])[0].get("description", "N/A")
+            
+            st.session_state.locations.append({
+                "lat": lat,
+                "lon": lon,
+                "city": name,
+                "temp": temp,
+                "hum": hum,
+                "cond": cond
+            })
+            st.rerun()
+    except Exception as e:
+        st.error(f"⚠️ Exception occurred: {e}")
 
 # ---- 지도 표시 ----
-r = pdk.Deck(
-    map_style=None,
-    initial_view_state=INITIAL_VIEW,
-    layers=[
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=pd.DataFrame(st.session_state.locations),
-            get_position='[lon, lat]',
-            get_color='[255, 0, 0, 200]',
-            get_radius=40000,
-        )
-    ],
-)
-st.pydeck_chart(r)
+if st.session_state.locations:
+    r = pdk.Deck(
+        map_style=None,
+        initial_view_state=INITIAL_VIEW,
+        layers=[
+            pdk.Layer(
+                "ScatterplotLayer",
+                data=pd.DataFrame(st.session_state.locations),
+                get_position='[lon, lat]',
+                get_color='[255, 0, 0, 200]',
+                get_radius=40000,
+            )
+        ],
+    )
+    st.pydeck_chart(r)
 
 # ---- 날씨 카드 표시 ----
 st.subheader("🌤️ Selected Locations")
 for loc in st.session_state.locations:
-    weather_animation(loc["cond"])  # ✅ 애니메이션 표시
+    weather_animation(loc["cond"])
     with st.container():
         st.markdown(
             f"""
@@ -115,4 +128,4 @@ for loc in st.session_state.locations:
             </div>
             """,
             unsafe_allow_html=True,
-        ) 
+        )
