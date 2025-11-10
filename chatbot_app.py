@@ -13,8 +13,18 @@ st.markdown("**Choose a professional role and chat with an AI that thinks like a
 # --- SIDEBAR SETTINGS ---
 st.sidebar.header("⚙️ Settings")
 
+# --- API KEY INPUT ---
 api_key = st.sidebar.text_input("🔑 Enter your OpenAI API Key", type="password")
 
+# --- API 발급 안내 링크 ---
+st.sidebar.markdown("### 🔗 How to get your API Key")
+st.sidebar.markdown("""
+- **OpenAI (ChatGPT/GPT API)**: [Get API Key](https://platform.openai.com/account/api-keys)  
+- **Perplexity AI**: [Get API Key](https://www.perplexity.ai/)  
+- **Gemma / Google Gemini**: [Get API Key](https://developers.generativeai.google/)
+""")
+
+# --- ROLE SETTINGS ---
 roles = {
     "🎬 Film Director": "You are a visionary film director who loves discussing cinematography, camera angles, and emotional storytelling.",
     "💃 Dance Coach": "You are a passionate dance instructor focusing on rhythm, balance, and expression.",
@@ -39,7 +49,6 @@ if api_key:
     if st.button("✨ Generate Response"):
         if user_input.strip():
             with st.spinner("Thinking like a professional..."):
-                prompt = f"{roles[role]}\nUser: {user_input}\nAssistant:"
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[
@@ -54,6 +63,7 @@ if api_key:
             st.warning("Please type something first!")
 else:
     st.warning("🔑 Please enter your API key in the sidebar to start chatting.")
+    st.info("If you don't have an API key, follow the links above to get one.")
 
 # --- FOOTER ---
 st.markdown("---")
