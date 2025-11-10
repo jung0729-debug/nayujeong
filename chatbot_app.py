@@ -1,70 +1,60 @@
+# 🌍 Role-based Chatbot by Nayujeong
+# Run this app: streamlit run app.py
+
 import streamlit as st
-from openai import OpenAI
-import os
+import openai
 
-# 🔐 Load API key from Streamlit Secrets
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-client = OpenAI()
+# --- PAGE SETUP ---
+st.set_page_config(page_title="🎭 Role-based Chatbot by Nayujeong", layout="wide")
 
-# -------------------------------
-# 🎭 App Title and Description
-# -------------------------------
-st.set_page_config(page_title="🎭 Role-based Chatbot", layout="wide")
-st.title("🎭 Role-based Creative Chatbot")
-st.markdown("Select a creative professional role and chat naturally!")
+st.title("🎭 Role-based Chatbot")
+st.markdown("**Choose a professional role and chat with an AI that thinks like a creative expert.**")
 
-# -------------------------------
-# 🎨 Sidebar: Role Selection
-# -------------------------------
+# --- SIDEBAR SETTINGS ---
+st.sidebar.header("⚙️ Settings")
+
+api_key = st.sidebar.text_input("🔑 Enter your OpenAI API Key", type="password")
+
 roles = {
-    "🎬 Video Production Expert": "You are an experienced video producer who gives advice about filming, editing, and directing.",
-    "👗 Fashion Consultant": "You are a professional stylist offering fashion coordination tips and trend insights.",
-    "💃 Dance Coach": "You are a dance instructor helping people improve choreography and movement.",
-    "🎭 Performing Arts Critic": "You write critical reviews on theatre, film, and live performances.",
-    "🎨 Visual Artist": "You are a painter and digital artist who gives feedback on artistic composition and color harmony.",
-    "🎵 Music Producer": "You guide people on music arrangement, sound design, and production techniques.",
-    "📚 Literature Editor": "You analyze and improve creative writing, structure, and expression.",
-    "🎮 Game Designer": "You create and refine game concepts, mechanics, and storytelling.",
-    "📸 Photographer": "You provide professional tips on lighting, lens choice, and visual composition.",
-    "🎤 Voice Actor Coach": "You train students to perform voice acting with emotion and clarity."
+    "🎬 Film Director": "You are a visionary film director who loves discussing cinematography, camera angles, and emotional storytelling.",
+    "💃 Dance Coach": "You are a passionate dance instructor focusing on rhythm, balance, and expression.",
+    "👗 Fashion Stylist": "You are a creative fashion consultant specializing in color harmony, textures, and body types.",
+    "🎨 Art Critic": "You analyze artworks deeply, emphasizing symbolism, composition, and emotion.",
+    "🎹 Music Composer": "You create melodies and harmonies, explaining music theory and mood design.",
+    "📝 Creative Writer": "You write stories and poems, focusing on style, imagery, and character development.",
+    "📸 Photographer": "You give advice on lighting, composition, and storytelling through lenses.",
+    "🎭 Theatre Actor": "You speak with drama and emotion, helping others improve stage performance.",
+    "🎥 Film Editor": "You think in cuts and sequences, focusing on pacing and visual rhythm.",
+    "🎤 Performance Coach": "You guide voice, emotion, and confidence in public performances."
 }
 
-st.sidebar.header("🧩 Choose a Role")
-selected_role = st.sidebar.selectbox("Select a creative field", list(roles.keys()))
-st.sidebar.write("🧠 Role loaded:", selected_role)
+role = st.sidebar.selectbox("🎭 Choose a Role", list(roles.keys()))
+st.sidebar.write("🧠 **About this role:**")
+st.sidebar.info(roles[role])
 
-# -------------------------------
-# 💬 Chat Interface
-# -------------------------------
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
+# --- MAIN INTERFACE ---
+if api_key:
+    openai.api_key = api_key
+    user_input = st.text_area("💬 Ask something to your AI professional:", height=100)
+    if st.button("✨ Generate Response"):
+        if user_input.strip():
+            with st.spinner("Thinking like a professional..."):
+                prompt = f"{roles[role]}\nUser: {user_input}\nAssistant:"
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": roles[role]},
+                        {"role": "user", "content": user_input}
+                    ],
+                    temperature=0.8
+                )
+                st.markdown("### 🧩 Response:")
+                st.write(response["choices"][0]["message"]["content"])
+        else:
+            st.warning("Please type something first!")
+else:
+    st.warning("🔑 Please enter your API key in the sidebar to start chatting.")
 
-st.subheader(f"Chat as a {selected_role[2:]}")
-
-# Display chat history
-for msg in st.session_state["messages"]:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# User input
-prompt = st.chat_input("Ask or discuss something!")
-
-if prompt:
-    st.session_state["messages"].append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking creatively..."):
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": roles[selected_role]},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.8
-            )
-            reply = response.choices[0].message.content
-            st.markdown(reply)
-
-    st.session_state["messages"].append({"role": "assistant", "content": reply})
+# --- FOOTER ---
+st.markdown("---")
+st.markdown("Made by **Nayujeong** | Powered by **OpenAI API + Streamlit** 🎨")
