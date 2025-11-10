@@ -2,7 +2,9 @@
 # Run this app: streamlit run app.py
 
 import streamlit as st
-import openai
+from openai import OpenAI
+client = OpenAI()
+
 
 # --- PAGE SETUP ---
 st.set_page_config(page_title="🎭 Role-based Chatbot by Nayujeong", layout="wide")
@@ -40,16 +42,18 @@ if api_key:
         if user_input.strip():
             with st.spinner("Thinking like a professional..."):
                 prompt = f"{roles[role]}\nUser: {user_input}\nAssistant:"
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                        {"role": "system", "content": roles[role]},
-                        {"role": "user", "content": user_input}
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": prompt}
                     ],
                     temperature=0.8
                 )
+
+      
                 st.markdown("### 🧩 Response:")
-                st.write(response["choices"][0]["message"]["content"])
+                st.write(response.choices[0].message.content)
         else:
             st.warning("Please type something first!")
 else:
