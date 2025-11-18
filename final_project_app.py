@@ -9,7 +9,7 @@ import numpy as np
 import plotly.express as px
 
 st.set_page_config(page_title="🎨 AI Museum Curator", layout="wide", initial_sidebar_state="expanded")
-st.markdown("<h1 style='text-align:center; color:#2E4053;'>🎨 AI Museum Curator — Portfolio & Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curator — Portfolio & Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 
 # Tabs
