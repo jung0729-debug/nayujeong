@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 import groq  # groq SDK import
 
-GROQ_KEY = os.getenv("GROQ_API_KEY")
+GROQ_KEY = os.getenv(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)
 client = groq.Client(api_key=GROQ_KEY) if GROQ_KEY else None
 
 SYSTEM_PROMPT = (
