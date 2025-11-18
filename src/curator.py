@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from openai import OpenAI
 
-OPENAI_KEY = os.getenv("OPENAI_KEY")
+OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
 SYSTEM_PROMPT = (
@@ -17,13 +17,9 @@ USER_TEMPLATE = (
 
 def _meta_to_str(meta):
     fields = ["title", "artistDisplayName", "objectDate", "medium", "dimensions", "creditLine"]
-    parts = []
-    for k in fields:
-        v = meta.get(k)
-        if v:
-            parts.append(f"{k}: {v}")
+    parts = [f"{k}: {meta[k]}" for k in fields if meta.get(k)]
     if meta.get("objectID"):
-        parts.append(f"objectID: {meta.get('objectID')}")
+        parts.append(f"objectID: {meta['objectID']}")
     return "; ".join(parts)
 
 @lru_cache(maxsize=256)
