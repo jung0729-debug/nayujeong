@@ -11,7 +11,7 @@ from groq import Groq   # 🔥 OpenAI → Groq 로 변경
 # -----------------------------
 # Initialize Groq Client
 # -----------------------------
-client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+client = Groq(api_key=st.secrets[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])
 
 def generate_curator_note(title, artist, year):
     prompt = f"""
