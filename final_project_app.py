@@ -15,7 +15,7 @@ st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 # Tabs
 tab_gallery, tab_dashboard, tab_upload = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz"])
 
-# ------------------ GALLERY TAB ------------------
+# ------------------ GALLERY TAB (Updated) ------------------
 with tab_gallery:
     st.markdown("### Gallery — The Met + Generated Works")
     with st.sidebar:
@@ -23,6 +23,7 @@ with tab_gallery:
         q = st.text_input("Keyword (The Met)", value="Monet")
         cols_num = st.selectbox("Columns", [2,3,4], index=1)
         max_results = st.slider("Max results", 6,36,12,6)
+        api_key_input = st.text_input("Your OpenAI API Key (optional)", type="password")
 
     if q:
         ids = search(q, max_results)
@@ -36,15 +37,21 @@ with tab_gallery:
                     img = meta.get("primaryImageSmall") or meta.get("primaryImage")
                     if img:
                         st.image(img, use_column_width=True, caption=f"**{meta.get('title','Untitled')}** — {meta.get('artistDisplayName','Unknown')}")
+                    
+                    # Curator Note 버튼
                     if st.button("Curator Note", key=f"note_{meta.get('objectID')}"):
-                        with st.spinner("Generating curator note..."):
-                            note = explain_object(meta)
-                            st.markdown("---")
-                            st.subheader("Curator Note")
-                            st.write(note)
+                        if not api_key_input:
+                            st.warning("Please enter your OpenAI API key in the sidebar to generate a curator note.")
+                        else:
+                            with st.spinner("Generating curator note..."):
+                                note = explain_object(meta, api_key=api_key_input)
+                                st.markdown("---")
+                                st.subheader("Curator Note")
+                                st.write(note)
+
     st.markdown("---")
 
-    # Generated Works
+    # Generated Works Section (unchanged)
     st.markdown("### Generated / Uploaded Artworks")
     gen_path = os.path.join("data","generated_catalog.json")
     gen = []
@@ -67,6 +74,7 @@ with tab_gallery:
                     except:
                         st.write("(이미지 로드 실패)")
                 st.write(item.get("description",""))
+
 
 # ------------------ DASHBOARD TAB ------------------
 with tab_dashboard:
