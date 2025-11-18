@@ -1,11 +1,5 @@
-
-import os
-from functools import lru_cache
 from openai import OpenAI
-
-# 네 API 키를 여기 넣으면 됩니다
-OPENAI_KEY = "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"
-client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
+from functools import lru_cache
 
 SYSTEM_PROMPT = (
     "You are a professional museum curator. Your tone is polished, evocative, and authoritative yet accessible."
@@ -25,9 +19,10 @@ def _meta_to_str(meta):
     return "; ".join(parts)
 
 @lru_cache(maxsize=256)
-def _call_openai_for_object(object_id, meta_str):
-    if not client:
+def _call_openai_for_object(object_id, meta_str, api_key):
+    if not api_key:
         return None
+    client = OpenAI(api_key=api_key)
     try:
         res = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -42,18 +37,20 @@ def _call_openai_for_object(object_id, meta_str):
     except Exception as e:
         return f"OpenAI request failed: {e}"
 
-def explain_object(meta):
+def explain_object(meta, api_key=None):
     if not meta:
         return "No metadata provided."
     object_id = meta.get("objectID")
     meta_str = _meta_to_str(meta)
-    if not client:
+
+    if not api_key:
+        # API 키가 없으면 안내만 출력
         title = meta.get("title", "Untitled")
         artist = meta.get("artistDisplayName", "Unknown Artist")
         date = meta.get("objectDate", "")
-        return f"{title} — {artist} ({date}). [OpenAI API key not set: set OPENAI_API_KEY to generate a full curator note.]"
+        return f"{title} — {artist} ({date}). [Enter your OpenAI API key to generate a full curator note.]"
 
-    result = _call_openai_for_object(object_id, meta_str)
+    result = _call_openai_for_object(object_id, meta_str, api_key)
     if result is None:
         return "OpenAI client not configured correctly."
     return result
