@@ -1,8 +1,10 @@
+
 import os
 from functools import lru_cache
 from openai import OpenAI
 
-OPENAI_KEY = os.getenv("OPENAI_API_KEY")
+# 네 API 키를 여기 넣으면 됩니다
+OPENAI_KEY = "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"
 client = OpenAI(api_key=OPENAI_KEY) if OPENAI_KEY else None
 
 SYSTEM_PROMPT = (
