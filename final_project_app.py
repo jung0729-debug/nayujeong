@@ -78,9 +78,8 @@ def llm_curator_note(api_key, meta):
     year = meta.get("objectDate","")
     medium = meta.get("medium","")
     prompt = (
-        f"You are a professional museum curator. Write a polished 150-220 word curator note for an intelligent lay audience.
-"
-        f"Title: {title}
+        f"You are a professional museum curator. Write a polished 150-220 word curator note for an intelligent lay audience."
+        f"Title": {title}
 Artist: {artist}
 Year: {year}
 Medium: {medium}
