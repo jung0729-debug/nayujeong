@@ -147,7 +147,6 @@ with tab_gallery:
                     else:
                         st.info("Enter OpenAI API key in sidebar to generate curator note.")
 # ------------------ AI GENERATION TAB ------------------
-tab_ai_gen = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz", "🤖 AI Generation"])[-1]
 
 with tab_ai_gen:
     st.markdown("### Generate AI Images Based on Your Favorite Artwork")
