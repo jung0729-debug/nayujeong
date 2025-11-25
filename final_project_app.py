@@ -84,7 +84,7 @@ Artist: {artist}
 Year: {year}
 Medium: {medium}
 
-"
+
         "Include: brief context, visual analysis (composition, color, technique), interpretive insight, and a viewing tip. Tone: authoritative, evocative, accessible."
     )
     try:
