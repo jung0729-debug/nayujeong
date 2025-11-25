@@ -146,28 +146,6 @@ with tab_gallery:
                             st.write(note)
                     else:
                         st.info("Enter OpenAI API key in sidebar to generate curator note.")
-
-
-# ------------------ DASHBOARD TAB ------------------
-with tab_dashboard:
-    st.markdown("### Dashboard — Analytics")
-    q_dash = st.text_input("Dashboard Keyword (The Met)", value="Monet", key="dash_q")
-    n_dash = st.slider("Sample size", 10, 100, 30, key="dash_n")
-
-    if q_dash:
-        ids_dash = search(q_dash, n_dash)
-        metas_dash = [get_object(i) for i in ids_dash]
-
-        # Histogram
-        fig, df = plot_year_histogram(metas_dash)
-        if fig:
-            st.plotly_chart(fig, use_container_width=True)
-            if st.checkbox("Show Sample Table"):
-                st.dataframe(df.head(10))
-        else:
-            st.info("연도 데이터가 충분하지 않습니다.")
-
-        # ------------------ DASHBOARD TAB ------------------
 # ------------------ AI GENERATION TAB ------------------
 tab_ai_gen = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz", "🤖 AI Generation"])[-1]
 
@@ -212,6 +190,10 @@ with tab_ai_gen:
                     
                     ai_img_url = response.data[0].url
                     st.image(ai_img_url, caption="🎨 AI Generated Image", use_column_width=True)
+
+
+
+
 
 # ------------------ DASHBOARD TAB ------------------
 with tab_dashboard:
