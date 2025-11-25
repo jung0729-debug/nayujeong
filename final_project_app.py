@@ -9,6 +9,8 @@ from io import BytesIO
 import numpy as np
 from src.met_api import search, get_object
 from src.curator import explain_object
+from src.viz import plot_year_histogram
+
 
 # -------------------------------------------
 # 국가 데이터 자동 보완 함수
