@@ -81,8 +81,7 @@ tab_gallery, tab_dashboard, tab_upload, tab_ai_gen = st.tabs(
 
 
 # ------------------ GALLERY TAB ------------------
-# ------------------ GALLERY TAB ------------------
-# ------------------ GALLERY TAB ------------------
+
 with tab_gallery:
     st.markdown("### Gallery — The Met + Generated Works")
 
