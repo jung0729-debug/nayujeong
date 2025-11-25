@@ -199,7 +199,7 @@ if nav == "Gallery":
                 img = m.get("primaryImageSmall") or m.get("primaryImage") or ""
                 title = m.get("title","Untitled")
                 artist = m.get("artistDisplayName","Unknown")
-                year = m.get("objectDate",")
+                year = m.get("objectDate")
                 card = f"""
                 <div class='card hover-overlay'>
                   <img src='{img}' alt='{title}'>
