@@ -32,6 +32,7 @@ def derive_country(obj):
         "Greek": "Greece",
         "British": "United Kingdom",
         "Spanish": "Spain",
+        "China":"China",
     }
 
     culture = obj.get("culture", "")
