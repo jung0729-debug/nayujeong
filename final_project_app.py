@@ -321,10 +321,7 @@ if nav == "Upload & Color Viz":
 # --------- ABOUT ---------
 if nav == "About":
     st.markdown("## About this project")
-    st.markdown("AI Museum Curator: integration of The Met API, AI curator notes, and visual analytics.
-
-Set your OpenAI key in the sidebar to enable curator notes.")
-    st.markdown('
-**Credits & Tech**: Streamlit · Plotly · Pillow · NumPy · Requests')
+    st.markdown("AI Museum Curator: integration of The Met API, AI curator notes, and visual analytics. Set your OpenAI key in the sidebar to enable curator notes.")
+    st.markdown('**Credits & Tech**: Streamlit · Plotly · Pillow · NumPy · Requests')
 
 # END
