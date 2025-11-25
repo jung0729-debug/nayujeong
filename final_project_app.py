@@ -142,11 +142,13 @@ with tab_dashboard:
             st.info("연도 데이터가 충분하지 않습니다.")
 
         # ------------------ DASHBOARD TAB ------------------
+# ------------------ DASHBOARD TAB ------------------
 with tab_dashboard:
     st.markdown("### 📊 Dashboard — Analytics (Country & Medium)")
 
-    q_dash = st.text_input("Dashboard Keyword (The Met)", value="Monet", key="dash_q")
-    n_dash = st.slider("Sample size", 10,100,30, key="dash_n")
+    # key를 고유하게 변경
+    q_dash = st.text_input("Dashboard Keyword (The Met)", value="Monet", key="dashboard_keyword")
+    n_dash = st.slider("Sample size", 10,100,30, key="dashboard_sample_size")
     
     if q_dash:
         ids_dash = search(q_dash, n_dash)
@@ -155,10 +157,8 @@ with tab_dashboard:
         if not metas_dash:
             st.warning("검색 결과가 없습니다.")
         else:
-            # -----------------------------------
             # 국가 및 재료 정보 보완
-            # -----------------------------------
-            countries = [derive_country(m) for m in metas_dash]  # derive_country 적용
+            countries = [derive_country(m) for m in metas_dash]
             mediums = [m.get("medium", "Unknown") for m in metas_dash]
 
             df_meta = pd.DataFrame({
@@ -167,15 +167,7 @@ with tab_dashboard:
                 "title": [m.get("title","Unknown") for m in metas_dash]
             })
 
-            # Plot year histogram if needed (기존 기능 유지)
-            # 예시: plot_year_histogram(metas_dash) 사용 가능
-            # fig, df_year = plot_year_histogram(metas_dash)
-            # if fig:
-            #     st.plotly_chart(fig, use_container_width=True)
-
-            # -----------------------------------
             # Country Treemap
-            # -----------------------------------
             st.markdown("### 🌍 Country Distribution Treemap")
             if df_meta["country"].nunique() > 1:
                 fig_country = px.treemap(df_meta, path=['country'], title="Country Treemap")
@@ -183,9 +175,7 @@ with tab_dashboard:
             else:
                 st.info("국가 데이터가 부족합니다.")
 
-            # -----------------------------------
             # Medium / Material Treemap
-            # -----------------------------------
             st.markdown("### 🧵 Medium / Material Treemap")
             if df_meta["medium"].nunique() > 1:
                 fig_medium = px.treemap(df_meta, path=['medium'], title="Medium / Material Treemap")
@@ -193,10 +183,8 @@ with tab_dashboard:
             else:
                 st.info("재료 데이터가 부족합니다.")
 
-            # -----------------------------------
             # Optional: Sample Table
-            # -----------------------------------
-            if st.checkbox("Show Sample Table"):
+            if st.checkbox("Show Sample Table", key="dashboard_sample_table"):
                 st.dataframe(df_meta.head(10))
 
 
