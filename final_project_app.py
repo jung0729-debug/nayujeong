@@ -1,13 +1,69 @@
-import os, json, base64
+import os
+import json
+import re       # <- 반드시 필요
 import streamlit as st
-from src.met_api import search, get_object
-from src.curator import explain_object
-from src.viz import plot_year_histogram
-from PIL import Image, ImageStat
-from io import BytesIO
-import numpy as np
 import pandas as pd
 import plotly.express as px
+from PIL import Image
+from io import BytesIO
+import numpy as np
+from src.met_api import search, get_object
+from src.curator import explain_object
+
+# -------------------------------------------
+# 국가 데이터 자동 보완 함수
+# -------------------------------------------
+def derive_country(obj):
+    if obj.get("country"):
+        return obj["country"].strip()
+
+    culture_map = {
+        "American": "United States",
+        "Korean": "Korea",
+        "French": "France",
+        "Egyptian": "Egypt",
+        "Japanese": "Japan",
+        "Chinese": "China",
+        "Italian": "Italy",
+        "German": "Germany",
+        "Indian": "India",
+        "Greek": "Greece",
+        "British": "United Kingdom",
+        "Spanish": "Spain",
+    }
+
+    culture = obj.get("culture", "")
+    if culture in culture_map:
+        return culture_map[culture]
+
+    nationality = obj.get("artistNationality", "")
+    if nationality in culture_map:
+        return culture_map[nationality]
+
+    bio = obj.get("artistDisplayBio", "")
+    match = re.search(r"\(([^,]+),", bio)
+    if match:
+        nat = match.group(1).strip()
+        if nat in culture_map:
+            return culture_map[nat]
+
+    city = obj.get("city", "")
+    city_map = {
+        "New York": "United States",
+        "Paris": "France",
+        "Seoul": "Korea",
+        "Tokyo": "Japan",
+        "Cairo": "Egypt",
+        "London": "United Kingdom",
+        "Kyoto": "Japan",
+        "Florence": "Italy",
+        "Beijing": "China",
+    }
+    if city in city_map:
+        return city_map[city]
+
+    return "Unknown"
+
 
 st.set_page_config(page_title="🎨 AI Museum Curator", layout="wide", initial_sidebar_state="expanded")
 st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curator — Portfolio & Dashboard</h1>", unsafe_allow_html=True)
