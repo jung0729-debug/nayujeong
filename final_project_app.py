@@ -75,7 +75,10 @@ st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curato
 st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 
 # Tabs
-tab_gallery, tab_dashboard, tab_upload = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz"])
+tab_gallery, tab_dashboard, tab_upload, tab_ai_gen = st.tabs(
+    ["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz", "🤖 AI Generation"]
+)
+
 
 # ------------------ GALLERY TAB ------------------
 # ------------------ GALLERY TAB ------------------
