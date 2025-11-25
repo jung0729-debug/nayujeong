@@ -165,6 +165,51 @@ with tab_dashboard:
             st.info("연도 데이터가 충분하지 않습니다.")
 
         # ------------------ DASHBOARD TAB ------------------
+# ------------------ AI GENERATION TAB ------------------
+tab_ai_gen = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz", "🤖 AI Generation"])[-1]
+
+with tab_ai_gen:
+    st.markdown("### Generate AI Images Based on Your Favorite Artwork")
+    
+    # Step 1: Keyword / Object selection
+    fav_keyword = st.text_input("Enter a keyword or artwork title", value="Monet")
+    fav_max_results = st.slider("Number of artworks to fetch for preference", 3, 12, 3)
+    api_key_ai = st.text_input("Your OpenAI API Key", type="password")
+    
+    if fav_keyword and api_key_ai:
+        # Fetch artworks
+        ids_fav = search(fav_keyword, fav_max_results)
+        metas_fav = [get_object(i) for i in ids_fav]
+        
+        st.markdown("#### Select your favorite artwork")
+        fav_options = [f"{m.get('title','Untitled')} — {m.get('artistDisplayName','Unknown')}" for m in metas_fav]
+        selected_fav = st.selectbox("Choose one", options=fav_options)
+        
+        if selected_fav:
+            idx = fav_options.index(selected_fav)
+            fav_art = metas_fav[idx]
+            img_url = fav_art.get("primaryImageSmall") or fav_art.get("primaryImage")
+            
+            if img_url:
+                st.image(img_url, width=300, caption=f"**{fav_art.get('title','Untitled')}**")
+            
+            # Step 2: Generate AI image
+            if st.button("Generate Similar AI Image"):
+                import openai
+                openai.api_key = api_key_ai
+                
+                with st.spinner("Generating AI image..."):
+                    prompt = f"Create an AI-generated image similar in style and content to '{fav_art.get('title','Untitled')}' by {fav_art.get('artistDisplayName','Unknown')}. Focus on the artistic style and composition."
+                    
+                    response = openai.images.generate(
+                        model="gpt-image-1",
+                        prompt=prompt,
+                        size="1024x1024"
+                    )
+                    
+                    ai_img_url = response.data[0].url
+                    st.image(ai_img_url, caption="🎨 AI Generated Image", use_column_width=True)
+
 # ------------------ DASHBOARD TAB ------------------
 with tab_dashboard:
     st.markdown("### 📊 Dashboard — Analytics (Country & Medium)")
