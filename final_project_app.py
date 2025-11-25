@@ -78,6 +78,7 @@ st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 tab_gallery, tab_dashboard, tab_upload = st.tabs(["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz"])
 
 # ------------------ GALLERY TAB ------------------
+# ------------------ GALLERY TAB ------------------
 with tab_gallery:
     st.markdown("### Gallery — The Met + Generated Works")
 
@@ -88,10 +89,6 @@ with tab_gallery:
         max_results = st.slider("Max results", 6,36,12,6)
         api_key_input = st.text_input("Your OpenAI API Key (optional)", type="password")
 
-    # Compare list storage
-    if "compare_list" not in st.session_state:
-        st.session_state.compare_list = []
-
     if q:
         ids = search(q, max_results)
         if not ids:
@@ -100,14 +97,18 @@ with tab_gallery:
             metas = [get_object(i) for i in ids[:max_results]]
             cols = st.columns(cols_num)
 
+            # ----------------------
+            # Select to Compare 추가
+            # ----------------------
+            select_options = [f"{m.get('title','Untitled')} — {m.get('artistDisplayName','Unknown')}" for m in metas]
+            selected_compare = st.multiselect("Select artworks to compare", options=select_options)
+
             for i, meta in enumerate(metas):
-                with cols[i % cols_num]:
+                with cols[i%cols_num]:
                     img = meta.get("primaryImageSmall") or meta.get("primaryImage")
                     if img:
-                        st.image(img, use_column_width=True,
-                                 caption=f"**{meta.get('title','Untitled')}** — {meta.get('artistDisplayName','Unknown')}")
+                        st.image(img, use_column_width=True, caption=f"**{meta.get('title','Untitled')}** — {meta.get('artistDisplayName','Unknown')}")
 
-                    # Curator Note 버튼
                     if st.button("Curator Note", key=f"note_{meta.get('objectID')}"):
                         if not api_key_input:
                             st.warning("Please enter your OpenAI API key in the sidebar to generate a curator note.")
@@ -118,45 +119,19 @@ with tab_gallery:
                                 st.subheader("Curator Note")
                                 st.write(note)
 
-                    # ---- (NEW) Compare Mode ----
-                    select_for_compare = st.checkbox(
-                        "Select for Compare",
-                        key=f"compare_{meta.get('objectID')}"
-                    )
-                    if select_for_compare:
-                        if meta not in st.session_state.compare_list:
-                            if len(st.session_state.compare_list) < 2:
-                                st.session_state.compare_list.append(meta)
-                            else:
-                                st.warning("You can compare only 2 items at a time.")
-                    else:
-                        if meta in st.session_state.compare_list:
-                            st.session_state.compare_list.remove(meta)
-
-    st.markdown("---")
-
-    # ---- (NEW) Compare Viewer ----
-    if len(st.session_state.compare_list) == 2:
-        st.subheader("🖼 Compare Selected Artworks")
-        colA, colB = st.columns(2)
-        a, b = st.session_state.compare_list
-
-        with colA:
-            st.image(a.get("primaryImageSmall"), caption=a.get("title"))
-            st.write(f"Artist: {a.get('artistDisplayName')}")
-            st.write(f"Year: {a.get('objectDate')}")
-            st.write(f"Country: {a.get('country')}")
-
-        with colB:
-            st.image(b.get("primaryImageSmall"), caption=b.get("title"))
-            st.write(f"Artist: {b.get('artistDisplayName')}")
-            st.write(f"Year: {b.get('objectDate')}")
-            st.write(f"Country: {b.get('country')}")
-
-        if st.button("Clear Comparison"):
-            st.session_state.compare_list = []
-
-    st.markdown("---")
+            # ----------------------
+            # 선택 작품 비교 출력
+            # ----------------------
+            if selected_compare:
+                st.markdown("### 🔍 Selected Artworks Comparison")
+                for s in selected_compare:
+                    idx = select_options.index(s)
+                    m = metas[idx]
+                    st.write(f"**{m.get('title','Untitled')} — {m.get('artistDisplayName','Unknown')}**")
+                    st.write(f"Date: {m.get('objectDate','Unknown')}, Medium: {m.get('medium','Unknown')}, Country: {derive_country(m)}")
+                    img = m.get("primaryImageSmall") or m.get("primaryImage")
+                    if img:
+                        st.image(img, width=300)
 
     # ---------------- Generated Works Section ----------------
     st.markdown("### Generated / Uploaded Artworks")
