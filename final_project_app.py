@@ -60,6 +60,7 @@ def derive_country(obj):
         "Kyoto": "Japan",
         "Florence": "Italy",
         "Beijing": "China",
+        "India":"India",
     }
     if city in city_map:
         return city_map[city]
