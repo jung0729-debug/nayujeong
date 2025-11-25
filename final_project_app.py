@@ -79,6 +79,7 @@ tab_gallery, tab_dashboard, tab_upload = st.tabs(["🖼 Gallery", "📊 Dashboar
 
 # ------------------ GALLERY TAB ------------------
 # ------------------ GALLERY TAB ------------------
+# ------------------ GALLERY TAB ------------------
 with tab_gallery:
     st.markdown("### Gallery — The Met + Generated Works")
 
@@ -98,7 +99,7 @@ with tab_gallery:
             cols = st.columns(cols_num)
 
             # ----------------------
-            # Select to Compare 추가
+            # Select to Compare
             # ----------------------
             select_options = [f"{m.get('title','Untitled')} — {m.get('artistDisplayName','Unknown')}" for m in metas]
             selected_compare = st.multiselect("Select artworks to compare", options=select_options)
@@ -109,6 +110,7 @@ with tab_gallery:
                     if img:
                         st.image(img, use_column_width=True, caption=f"**{meta.get('title','Untitled')}** — {meta.get('artistDisplayName','Unknown')}")
 
+                    # Curator Note 버튼 (개별 작품)
                     if st.button("Curator Note", key=f"note_{meta.get('objectID')}"):
                         if not api_key_input:
                             st.warning("Please enter your OpenAI API key in the sidebar to generate a curator note.")
@@ -120,7 +122,7 @@ with tab_gallery:
                                 st.write(note)
 
             # ----------------------
-            # 선택 작품 비교 출력
+            # 선택 작품 비교 및 큐레이터 노트
             # ----------------------
             if selected_compare:
                 st.markdown("### 🔍 Selected Artworks Comparison")
@@ -133,29 +135,14 @@ with tab_gallery:
                     if img:
                         st.image(img, width=300)
 
-    # ---------------- Generated Works Section ----------------
-    st.markdown("### Generated / Uploaded Artworks")
-    gen_path = os.path.join("data", "generated_catalog.json")
-    gen = []
-    if os.path.exists(gen_path):
-        try:
-            with open(gen_path, "r", encoding="utf-8") as f:
-                gen = json.load(f)
-        except:
-            gen = []
-
-    if gen:
-        cols = st.columns(3)
-        for i, item in enumerate(gen):
-            with cols[i % 3]:
-                img_bytes = BytesIO(bytes(item.get("image_bytes"), "latin1")) if item.get("image_bytes") else None
-                if img_bytes:
-                    try:
-                        img = Image.open(img_bytes)
-                        st.image(img, use_column_width=True, caption=f"**{item.get('title','Generated')}**")
-                    except:
-                        st.write("(이미지 로드 실패)")
-                st.write(item.get("description", ""))
+                    # 큐레이터 노트 API 호출
+                    if api_key_input:
+                        with st.spinner(f"Generating curator note for {m.get('title','Untitled')}..."):
+                            note = explain_object(m, api_key=api_key_input, compare_with=selected_compare)
+                            st.markdown("**Curator Note:**")
+                            st.write(note)
+                    else:
+                        st.info("Enter OpenAI API key in sidebar to generate curator note.")
 
 
 # ------------------ DASHBOARD TAB ------------------
