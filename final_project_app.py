@@ -74,6 +74,17 @@ st.set_page_config(page_title="🎨 AI Museum Curator", layout="wide", initial_s
 st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curator — Portfolio & Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 
+st.markdown(
+    """
+    <div style='text-align:center; margin-top:-10px;'>
+        <span style='font-size:20px; color:#FF8C00; font-weight:600;'>NAYUJEONG</span>
+        <div style='width:160px; margin:6px auto; border-bottom:2px solid #FF8C00;'></div>
+        <span style='font-size:14px; color:#666;'>Curated Art • Portfolio • Creativity</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Tabs
 tab_gallery, tab_dashboard, tab_upload, tab_ai_gen = st.tabs(
     ["🖼 Gallery", "📊 Dashboard", "⬆️ Upload & Color Viz", "🤖 AI Generation"]
