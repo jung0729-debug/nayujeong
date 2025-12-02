@@ -81,15 +81,28 @@ st.set_page_config(page_title="🎨 AI Museum Curator",
                    layout="wide",
                    initial_sidebar_state="expanded")
 
+# 🔹 기본 UI 요소 숨기기 & 여백 최소화
+hide_default = """
+<style>
+main.block-container {
+    padding-top: 1rem;
+}
+header {visibility: hidden;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(hide_default, unsafe_allow_html=True)
 
 # 🖼️ Curator Profile Section
 logo_url = "https://drive.google.com/uc?export=view&id=1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz"
 
 st.markdown(
     f"""
-    <div style='text-align:center; margin-top:10px;'>
+    <div style='text-align:center; margin-top:5px;'>
         <img src="{logo_url}" width="110" height="110"
-        style='border-radius:50%; object-fit:cover; border:3px solid #FF8C00; box-shadow:0 0 10px rgba(255,140,0,0.35);'>
+        style='border-radius:50%; object-fit:cover;
+        border:3px solid #FF8C00; box-shadow:0 0 10px rgba(255,140,0,0.35);'>
 
         <h2 style='color:#FF8C00; margin-top:10px; margin-bottom:3px;
         font-family:Georgia, serif; letter-spacing:1.3px;'>
@@ -101,12 +114,12 @@ st.markdown(
             Curating AI-Driven Visual Art & Creative Imagination
         </p>
 
-        <hr style='width:55%; margin:auto; border:0.5px solid #FFB477; margin-top:12px;'>
+        <hr style='width:55%; margin:auto; border:0.5px solid #FFB477;
+        margin-top:12px;'>
     </div>
     """,
     unsafe_allow_html=True
 )
-
 
 # Tabs
 tab_gallery, tab_dashboard, tab_upload, tab_ai_gen = st.tabs(
