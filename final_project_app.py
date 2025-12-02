@@ -75,26 +75,35 @@ st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curato
 st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 
 # 🖼️ Curator Profile Section
-st.markdown(
-    """
-    <div style='text-align:center; margin-top:-10px;'>
-        <!--profile -->
-        <img src='https://drive.google.com/file/d/1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz/view?usp=sharing' width='110' height='110'
-        style='border-radius:50%; object-fit:cover; border:3px solid #FF8C00;'>
+import streamlit as st
 
-        <!--name -->
-        <h2 style='color:#FF8C00; margin-top:12px; margin-bottom:2px; font-family:Georgia, serif; letter-spacing:1px;'>
-            NAYUJEONG ART GALLERY
-        </h2>
+st.set_page_config(page_title="🎨 AI Museum Curator",
+                   layout="wide",
+                   initial_sidebar_state="expanded")
 
-        <!-- slogan -->
-        <p style='color:#555; font-size:15px; margin-top:0px;'>
-            Curating AI-Driven Visual Art & Creative Imagination
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+
+# 🖼️ Curator Profile Section
+st.markdown("""
+<div style='text-align:center; margin-top:8px;'>
+
+    <img src='https://drive.google.com/uc?export=view&id=1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz'
+         width='110' height='110'
+         style='border-radius:50%; object-fit:cover; border:3px solid #FFB067; box-shadow:0 0 10px rgba(255,140,0,0.35);'>
+
+    <h2 style='color:#FF8C00; margin-top:10px; margin-bottom:3px;
+               font-family:Georgia, serif; letter-spacing:1.3px;'>
+        NAYUJEONG ART GALLERY
+    </h2>
+
+    <p style='color:#666; font-size:14px; margin:0px;
+              font-family:Georgia, serif;'>
+        Curating AI-Driven Visual Art & Creative Imagination
+    </p>
+
+    <hr style='width:55%; margin:auto; border:0.5px solid #FFB477; margin-top:12px;'>
+</div>
+""", unsafe_allow_html=True)
+
 
 # Tabs
 tab_gallery, tab_dashboard, tab_upload, tab_ai_gen = st.tabs(
