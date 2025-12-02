@@ -74,12 +74,23 @@ st.set_page_config(page_title="🎨 AI Museum Curator", layout="wide", initial_s
 st.markdown("<h1 style='text-align:center; color:#FF8C00;'>🎨 AI Museum Curator — Portfolio & Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 
+s# 🖼️ Curator Profile Section
 st.markdown(
     """
     <div style='text-align:center; margin-top:-10px;'>
-        <span style='font-size:20px; color:#FF8C00; font-weight:600;'>NAYUJEONG</span>
-        <div style='width:160px; margin:6px auto; border-bottom:2px solid #FF8C00;'></div>
-        <span style='font-size:14px; color:#666;'>Curated Art • Portfolio • Creativity</span>
+        <https://drive.google.com/file/d/1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz/view?usp=sharing>
+        <img src='https://i.imgur.com/zYxDCQT.png' width='110' height='110'
+        style='border-radius:50%; object-fit:cover; border:3px solid #FF8C00;'>
+
+        <Na Yujeong_2023312884>
+        <h2 style='color:#FF8C00; margin-top:12px; margin-bottom:2px; font-family:Georgia, serif; letter-spacing:1px;'>
+            NAYUJEONG ART GALLERY
+        </h2>
+
+        <🖼️🎨🖼️🎨🖼️🎨>
+        <p style='color:#555; font-size:15px; margin-top:0px;'>
+            Curating AI-Driven Visual Art & Creative Imagination
+        </p>
     </div>
     """,
     unsafe_allow_html=True
