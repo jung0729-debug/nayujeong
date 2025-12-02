@@ -81,7 +81,7 @@ st.set_page_config(page_title="🎨 AI Museum Curator",
                    layout="wide",
                    initial_sidebar_state="expanded")
 
-logo_url = "https://imgur.com/E9txjVF"
+logo_url = "https://i.imgur.com/E9txjVF.png"
 
 st.markdown(
     """
