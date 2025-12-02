@@ -78,16 +78,16 @@ st.markdown("<hr style='border:1px solid #bbb;'>", unsafe_allow_html=True)
 st.markdown(
     """
     <div style='text-align:center; margin-top:-10px;'>
-        <https://drive.google.com/file/d/1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz/view?usp=sharing>
-        <img src='https://i.imgur.com/zYxDCQT.png' width='110' height='110'
+        <!--profile -->
+        <img src='https://drive.google.com/file/d/1ZiHw3RUDFq89E4Vigjvb4zUpY3bVmZqz/view?usp=sharing' width='110' height='110'
         style='border-radius:50%; object-fit:cover; border:3px solid #FF8C00;'>
 
-        <Na Yujeong_2023312884>
+        <!--name -->
         <h2 style='color:#FF8C00; margin-top:12px; margin-bottom:2px; font-family:Georgia, serif; letter-spacing:1px;'>
             NAYUJEONG ART GALLERY
         </h2>
 
-        <🖼️🎨🖼️🎨🖼️🎨>
+        <!-- slogan -->
         <p style='color:#555; font-size:15px; margin-top:0px;'>
             Curating AI-Driven Visual Art & Creative Imagination
         </p>
